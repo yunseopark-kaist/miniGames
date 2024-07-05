@@ -5,9 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class HomeViewModel : ViewModel() {
-
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is home Fragment"
+    private val _gameList = MutableLiveData<List<GameItem>>().apply {
+        value = listOf(
+            // Sample data
+            GameItem("Type1", "Game 1", 10, 50),
+            GameItem("Type2", "Game 2", 20, 70)
+        )
     }
-    val text: LiveData<String> = _text
+    val gameList: LiveData<List<GameItem>> = _gameList
 }
