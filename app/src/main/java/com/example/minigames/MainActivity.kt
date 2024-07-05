@@ -4,7 +4,9 @@ import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -14,6 +16,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
 import com.example.minigames.databinding.ActivityMainBinding
 import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
@@ -54,9 +57,37 @@ class MainActivity : AppCompatActivity() {
 
         if (userViewModel.isLoggedIn()) {
             // 유저가 로그인되어 있다면 메인 화면으로 이동
+            updateNavHeader(navView)
             navController.navigate(R.id.nav_home)
         }
 
+        navView.menu.findItem(R.id.nav_logout).setOnMenuItemClickListener {
+            showLogoutConfirmationDialog(navController, drawerLayout)
+            true
+        }
+
+    }
+
+    private fun updateNavHeader(navView: NavigationView) {
+        val headerView = navView.getHeaderView(0)
+        val nicknameTextView = headerView.findViewById<TextView>(R.id.nickname)
+        val userIdTextView = headerView.findViewById<TextView>(R.id.user_id)
+
+        nicknameTextView.text = userViewModel.nickname
+        userIdTextView.text = userViewModel.kakaoId.toString()
+    }
+
+    private fun showLogoutConfirmationDialog(navController: NavController, drawerLayout: DrawerLayout) {
+        AlertDialog.Builder(this)
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to logout?")
+            .setPositiveButton("Yes") { _, _ ->
+                userViewModel.clearLoginInfo() // 유저 정보 클리어
+                navController.navigate(R.id.action_global_loginFragment) // 로그인 화면으로 이동
+                drawerLayout.closeDrawers() // 드로어 닫기
+            }
+            .setNegativeButton("No", null)
+            .show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
