@@ -7,11 +7,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.minigames.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
+    private lateinit var adapter: HomeAdapter
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -27,11 +29,15 @@ class HomeFragment : Fragment() {
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
+        val games = homeViewModel.gameList.value?: listOf()
+        adapter = HomeAdapter(games)
+        binding.gameList.adapter = adapter
+        binding.gameList.layoutManager = LinearLayoutManager(requireContext())
 
-        val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
+        homeViewModel.gameList.observe(viewLifecycleOwner, { games ->
+            adapter.updateData(games)
+        })
+
         return root
     }
 
