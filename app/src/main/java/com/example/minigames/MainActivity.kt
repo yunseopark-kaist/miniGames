@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        
         if (userViewModel.isLoggedIn()) {
             // 유저가 로그인되어 있다면 메인 화면으로 이동
             updateNavHeader(navView)
