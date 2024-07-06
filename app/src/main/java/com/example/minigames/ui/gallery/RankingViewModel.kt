@@ -8,7 +8,7 @@ import com.example.minigames.adapter.Score
 import org.json.JSONArray
 import java.io.IOException
 
-class GalleryViewModel : ViewModel() {
+class RankingViewModel : ViewModel() {
 
     private val _scores = MutableLiveData<List<Score>>()
     val scores: LiveData<List<Score>> = _scores

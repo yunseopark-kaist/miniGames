@@ -12,11 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.minigames.R
 import com.example.minigames.adapter.Score
 import com.example.minigames.adapter.ScoresAdapter
-import org.json.JSONArray
 
-class GalleryFragment : Fragment() {
+class RankingFragment : Fragment() {
 
-    private val galleryViewModel: GalleryViewModel by viewModels()
+    private val galleryViewModel: RankingViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var scoresAdapter: ScoresAdapter
     private val scores = mutableListOf<Score>()
