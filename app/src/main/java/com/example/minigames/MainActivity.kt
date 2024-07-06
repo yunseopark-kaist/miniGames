@@ -4,6 +4,7 @@ import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -17,6 +18,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
+import com.bumptech.glide.Glide
 import com.example.minigames.databinding.ActivityMainBinding
 import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
@@ -72,9 +74,16 @@ class MainActivity : AppCompatActivity() {
         val headerView = navView.getHeaderView(0)
         val nicknameTextView = headerView.findViewById<TextView>(R.id.nickname)
         val userIdTextView = headerView.findViewById<TextView>(R.id.user_id)
+        val profileImageView = headerView.findViewById<ImageView>(R.id.profile_image)
 
         nicknameTextView.text = userViewModel.nickname
         userIdTextView.text = userViewModel.kakaoId.toString()
+
+        userViewModel.profileImageUrl?.let { url ->
+            Glide.with(this)
+                .load(url)
+                .into(profileImageView)
+        }
     }
 
     private fun showLogoutConfirmationDialog(navController: NavController, drawerLayout: DrawerLayout) {

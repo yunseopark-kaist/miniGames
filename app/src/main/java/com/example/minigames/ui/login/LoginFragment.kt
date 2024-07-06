@@ -74,7 +74,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>() {
                 Log.i(TAG, "사용자 정보 요청 성공: ${user.kakaoAccount?.profile?.nickname}")
                 val userId = user.id
                 val userNickname = user.kakaoAccount?.profile?.nickname
-                viewModel.saveLoginInfo(token, userId, userNickname)
+                val profileImageUrl = user.kakaoAccount?.profile?.profileImageUrl
+                viewModel.saveLoginInfo(token, userId, userNickname, profileImageUrl)
                 GoMain()
             }
         }

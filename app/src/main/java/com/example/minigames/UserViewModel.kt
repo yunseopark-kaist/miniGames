@@ -27,10 +27,15 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         get() = prefs.getString("nickname", null)
         set(value) = prefs.edit().putString("nickname", value).apply()
 
-    fun saveLoginInfo(token: String, kakaoId: Long?, nickname: String?) {
+    var profileImageUrl: String?
+        get() = prefs.getString("profile_image_url", null)
+        set(value) = prefs.edit().putString("profile_image_url", value).apply()
+
+    fun saveLoginInfo(token: String, id: Long?, name: String?, profileImageUrl: String?) {
         accessToken = token
-        this.kakaoId = kakaoId
-        this.nickname = nickname
+        kakaoId = id
+        nickname = name
+        this.profileImageUrl = profileImageUrl
     }
 
     fun clearLoginInfo() {
