@@ -1,4 +1,4 @@
-package com.example.minigames.ui.gallery
+package com.example.minigames.ui.ranking
 
 import android.os.Bundle
 import android.view.LayoutInflater
