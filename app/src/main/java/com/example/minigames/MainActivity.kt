@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import com.bumptech.glide.Glide
 import com.example.minigames.databinding.ActivityMainBinding
+import com.example.minigames.server.viewmodel.UserViewModel
 import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
 import com.kakao.sdk.user.model.User
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    val profileViewModel: ProfileViewModel by viewModels()
     val userViewModel: UserViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,9 +41,8 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.appBarMain.toolbar)
 
         binding.appBarMain.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+            userViewModel.createUser(101, "yunseo")
+            userViewModel.getUsers()
         }
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
@@ -58,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         
-        if (userViewModel.isLoggedIn()) {
+        if (profileViewModel.isLoggedIn()) {
             // 유저가 로그인되어 있다면 메인 화면으로 이동
             updateNavHeader(navView)
             navController.navigate(R.id.nav_home)
@@ -77,10 +78,10 @@ class MainActivity : AppCompatActivity() {
         val userIdTextView = headerView.findViewById<TextView>(R.id.user_id)
         val profileImageView = headerView.findViewById<ImageView>(R.id.profile_image)
 
-        nicknameTextView.text = userViewModel.nickname
-        userIdTextView.text = userViewModel.kakaoId.toString()
+        nicknameTextView.text = profileViewModel.nickname
+        userIdTextView.text = profileViewModel.kakaoId.toString()
 
-        userViewModel.profileImageUrl?.let { url ->
+        profileViewModel.profileImageUrl?.let { url ->
             Glide.with(this)
                 .load(url)
                 .into(profileImageView)
@@ -92,7 +93,7 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Logout")
             .setMessage("Are you sure you want to logout?")
             .setPositiveButton("Yes") { _, _ ->
-                userViewModel.clearLoginInfo() // 유저 정보 클리어
+                profileViewModel.clearLoginInfo() // 유저 정보 클리어
                 navController.navigate(R.id.action_global_loginFragment) // 로그인 화면으로 이동
                 drawerLayout.closeDrawers() // 드로어 닫기
             }

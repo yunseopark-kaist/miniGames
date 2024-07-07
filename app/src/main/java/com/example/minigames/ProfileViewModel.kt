@@ -7,7 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 
 data class User(val id: String, val nickname: String)
 
-class UserViewModel(application: Application) : AndroidViewModel(application) {
+class ProfileViewModel(application: Application) : AndroidViewModel(application) {
 
     private val prefs: SharedPreferences = application.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
