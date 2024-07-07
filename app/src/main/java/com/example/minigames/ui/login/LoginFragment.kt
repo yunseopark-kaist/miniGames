@@ -1,18 +1,24 @@
 package com.example.minigames.ui.login
 
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
-import com.example.minigames.R
+import androidx.navigation.fragment.findNavController
 import com.example.minigames.ProfileViewModel
+import com.example.minigames.R
 import com.example.minigames.databinding.FragmentLoginBinding
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
+import java.io.File
+import java.io.IOException
 
 
 class LoginFragment : BaseFragment<FragmentLoginBinding>() {

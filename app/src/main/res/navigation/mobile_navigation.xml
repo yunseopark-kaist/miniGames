@@ -3,40 +3,44 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/nav_login">
 
     <fragment
-        android:id="@+id/loginFragment"
+        android:id="@+id/nav_login"
         android:name="com.example.minigames.ui.login.LoginFragment"
         android:label="Login"
         tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_login_to_home"
-            app:destination="@id/nav_home" />
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/nav_login"
+            app:popUpToInclusive="true"
+            />
     </fragment>
 
     <fragment
         android:id="@+id/nav_home"
         android:name="com.example.minigames.ui.home.HomeFragment"
-        android:label="@string/menu_home"
+        android:label="Home"
         tools:layout="@layout/fragment_home" />
+
 
     <fragment
         android:id="@+id/nav_ranking"
         android:name="com.example.minigames.ui.gallery.RankingFragment"
-        android:label="@string/menu_ranking"
+        android:label="Ranking"
         tools:layout="@layout/fragment_ranking" />
 
     <fragment
         android:id="@+id/nav_slideshow"
         android:name="com.example.minigames.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
+        android:label="Slideshow"
         tools:layout="@layout/fragment_slideshow" />
 
-    <!-- 글로벌 액션 정의 -->
     <action
-        android:id="@+id/action_global_loginFragment"
-        app:destination="@id/loginFragment"
+        android:id="@+id/action_logout"
+        app:destination="@id/nav_login"
         app:popUpTo="@id/nav_graph"
         app:popUpToInclusive="true" />
+
 </navigation>
