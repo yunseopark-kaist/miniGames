@@ -2,4 +2,4 @@ package com.example.minigames.server.model
 
 
 
-data class User(val nickname: String, val id: Int)
+data class User(val id: Int, val nickname: String)

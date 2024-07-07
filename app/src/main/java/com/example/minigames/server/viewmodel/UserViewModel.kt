@@ -11,11 +11,11 @@ class UserViewModel : ViewModel() {
     fun createUser(id: Int, nickname: String){
         viewModelScope.launch{
             try{
-                RetrofitClient.userService.createUser(User(nickname,id))
-                Log.d("create", "successed: $id: $nickname")
+                RetrofitClient.userService.createUser(User(id, nickname))
+                Log.d("create", "success: $id: $nickname")
             }
             catch(e: Exception){
-                Log.d("create", "failed")
+                Log.d("create", "failed$id: $nickname")
             }
         }
     }
@@ -23,9 +23,9 @@ class UserViewModel : ViewModel() {
         viewModelScope.launch{
             try{
                 val users = RetrofitClient.userService.getUsers()
-                Log.d("user: ", "${users[0].nickname}")
+                Log.d("get: ", "success ${users[0].nickname}")
             } catch(e: Exception){
-                Log.d("e", "exception");
+                Log.d("get", "exception");
             }
         }
     }

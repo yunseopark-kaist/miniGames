@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         binding.appBarMain.fab.setOnClickListener { view ->
             val intent = Intent(this, SudokuActivity::class.java)
             startActivity(intent)
+
         }
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView

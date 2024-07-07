@@ -6,14 +6,14 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface UserService {
     @POST("users")
     suspend fun createUser(@Body user: User)
 
     @GET("users")
-    suspend fun getAllUsers(): List<User>
-    abstract fun getUsers(): List<User>
+    suspend fun getUsers(@Query("id") id: Int? = null): List<User>
 
 }
 
