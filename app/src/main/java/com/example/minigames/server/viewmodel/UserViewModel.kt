@@ -15,7 +15,7 @@ class UserViewModel : ViewModel() {
     fun createUser(id: Int, nickname: String){
         viewModelScope.launch{
             try{
-                RetrofitClient.userService.createUser(User(id, nickname))
+                RetrofitClient.userService.createUser(User(id, nickname,0))
                 Log.d("create", "success: $id: $nickname")
             }
             catch(e: Exception){
@@ -52,6 +52,18 @@ class UserViewModel : ViewModel() {
             }
         }
     }
+
+    fun userScoreUp(id: Int, delta: Int){
+        viewModelScope.launch{
+            try {
+                val updatedUser = RetrofitClient.userService.userScoreUp(id, delta)
+                Log.d("userScoreUp", "success: $updatedUser")
+            } catch (e: Exception) {
+                Log.e("userScoreUp", "failed to increase score with id $id", e)
+            }
+        }
+    }
+
 
     fun updateUser(id: Int, nickname: String) {
         viewModelScope.launch {

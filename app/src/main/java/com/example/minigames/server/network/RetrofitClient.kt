@@ -28,7 +28,10 @@ interface UserService {
     @GET("users/exists")
     suspend fun isThereId(@Query("id") id: Int?=null): Boolean
 
-    @PUT("users")
+    @PUT("users/scoreup")
+    suspend fun userScoreUp(@Query("id") id: Int?=null, @Body delta: Int):User
+
+    @PUT("users/nickname")
     suspend fun updateUser(@Query("id") id: Int?=null, @Body nickname: String): User
 
     @DELETE("users")

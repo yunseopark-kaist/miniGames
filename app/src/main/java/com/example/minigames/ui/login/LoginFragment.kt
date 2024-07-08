@@ -102,11 +102,13 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>() {
 
     private fun GoMain(userId: Long?, userNickname: String?,imageUrl: String?){
         // 로그인 -> 메인
-        userViewModel.isThereId(userId?.toInt() ?: 0) { exists ->
+        val id=userId?.toInt() ?: 0
+        userViewModel.isThereId(id) { exists ->
             if (exists) {
                 // ID가 존재하는 경우
                 Log.d("checkUserId", "User with id $userId exists")
                 // 여기서 UI 업데이트 등을 수행할 수 있음
+                userViewModel.userScoreUp(id, 3);
             } else {
                 // ID가 존재하지 않는 경우
                 Log.d("checkUserId", "User with id $userId does not exist")
