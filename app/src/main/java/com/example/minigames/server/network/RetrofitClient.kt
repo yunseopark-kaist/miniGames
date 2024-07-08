@@ -29,10 +29,10 @@ interface UserService {
     suspend fun isThereId(@Query("id") id: Int?=null): Boolean
 
     @PUT("users/scoreup")
-    suspend fun userScoreUp(@Query("id") id: Int?=null, @Body delta: Int):User
+    suspend fun userScoreUp(@Query("id") id: Int, @Body delta: Map<String,Int>):User
 
     @PUT("users/nickname")
-    suspend fun updateUser(@Query("id") id: Int?=null, @Body nickname: String): User
+    suspend fun updateUser(@Query("id") id: Int, @Body nickname:Map<String, String>): User
 
     @DELETE("users")
     suspend fun removeUser(@Query("id") id: Int?=null): User
@@ -43,6 +43,14 @@ interface UserService {
 }
 
 object RetrofitClient {
+    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
+
+    private val client = OkHttpClient.Builder()
+        .addInterceptor(loggingInterceptor)
+        .build()
+
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://143.248.177.153:3000/")
         .addConverterFactory(GsonConverterFactory.create())
