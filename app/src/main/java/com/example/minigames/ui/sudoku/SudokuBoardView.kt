@@ -1,12 +1,11 @@
+// SudokuBoardView.kt
 package com.example.minigames.ui.sudoku
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import com.example.minigames.ui.sudoku.Cell
 import kotlin.math.min
 
 class SudokuBoardView(context: Context, attributeSet: AttributeSet) : View(context, attributeSet) {
@@ -14,16 +13,16 @@ class SudokuBoardView(context: Context, attributeSet: AttributeSet) : View(conte
     private var sqrtSize = 3
     private var size = 9
 
-    // these are set in onDraw
     private var cellSizePixels = 0F
     private var noteSizePixels = 0F
 
-    private var selectedRow = 0
-    private var selectedCol = 0
+    private var selectedRow = -1
+    private var selectedCol = -1
 
-    private var listener: SudokuBoardView.OnTouchListener? = null
+    private var listener: OnTouchListener? = null
 
     private var cells: List<Cell>? = null
+    private var solution: Array<IntArray>? = null
 
     private val thickLinePaint = Paint().apply {
         style = Paint.Style.STROKE
@@ -68,6 +67,11 @@ class SudokuBoardView(context: Context, attributeSet: AttributeSet) : View(conte
         color = Color.parseColor("#acacac")
     }
 
+    private val incorrectCellPaint = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = Color.RED
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val sizePixels = min(widthMeasureSpec, heightMeasureSpec)
@@ -84,25 +88,24 @@ class SudokuBoardView(context: Context, attributeSet: AttributeSet) : View(conte
     private fun updateMeasurements(width: Int) {
         cellSizePixels = width / size.toFloat()
         noteSizePixels = cellSizePixels / sqrtSize.toFloat()
-        noteTextPaint.textSize = cellSizePixels / sqrtSize.toFloat()
+        noteTextPaint.textSize = noteSizePixels
         textPaint.textSize = cellSizePixels / 1.5F
         startingCellTextPaint.textSize = cellSizePixels / 1.5F
     }
 
     private fun fillCells(canvas: Canvas) {
-        cells?.forEach {
-            val r = it.row
-            val c = it.col
+        cells?.forEach { cell ->
+            val r = cell.row
+            val c = cell.col
 
-            if (it.isStartingCell) {
-                fillCell(canvas, r, c, startingCellPaint)
-            } else if (r == selectedRow && c == selectedCol) {
-                fillCell(canvas, r, c, selectedCellPaint)
-            } else if (r == selectedRow || c == selectedCol) {
-                fillCell(canvas, r, c, conflictingCellPaint)
-            } else if (r / sqrtSize == selectedRow / sqrtSize && c / sqrtSize == selectedCol / sqrtSize) {
-                fillCell(canvas, r, c, conflictingCellPaint)
+            val paintToUse = when {
+                cell.isStartingCell -> startingCellPaint
+                cell.value != 0 && !cell.isCorrect -> incorrectCellPaint
+                r == selectedRow && c == selectedCol -> selectedCellPaint
+                r == selectedRow || c == selectedCol || (r / sqrtSize == selectedRow / sqrtSize && c / sqrtSize == selectedCol / sqrtSize) -> conflictingCellPaint
+                else -> Paint().apply { style = Paint.Style.FILL_AND_STROKE; color = Color.WHITE }
             }
+            fillCell(canvas, r, c, paintToUse)
         }
     }
 
@@ -142,7 +145,7 @@ class SudokuBoardView(context: Context, attributeSet: AttributeSet) : View(conte
             val value = cell.value
 
             if (value == 0) {
-                // draw notes
+                // Draw notes
                 cell.notes.forEach { note ->
                     val rowInCell = (note - 1) / sqrtSize
                     val colInCell = (note - 1) % sqrtSize
@@ -176,20 +179,24 @@ class SudokuBoardView(context: Context, attributeSet: AttributeSet) : View(conte
         }
     }
 
+    override fun performClick(): Boolean {
+        // Call the super method to ensure accessibility tools can handle clicks properly
+        return super.performClick()
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        return when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                handleTouchEvent(event.x, event.y)
-                true
-            }
-            else -> false
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            handleTouchEvent(event.x, event.y)
+            performClick()
+            return true
         }
+        return super.onTouchEvent(event)
     }
 
     private fun handleTouchEvent(x: Float, y: Float) {
-        val possibleSelectedRow = (y / cellSizePixels).toInt()
-        val possibleSelectedCol = (x / cellSizePixels).toInt()
-        listener?.onCellTouched(possibleSelectedRow, possibleSelectedCol)
+        val row = (y / cellSizePixels).toInt()
+        val col = (x / cellSizePixels).toInt()
+        listener?.onCellTouched(row, col)
     }
 
     fun updateSelectedCellUI(row: Int, col: Int) {
@@ -203,7 +210,12 @@ class SudokuBoardView(context: Context, attributeSet: AttributeSet) : View(conte
         invalidate()
     }
 
-    fun registerListener(listener: SudokuBoardView.OnTouchListener) {
+    fun setSolution(solution: Array<IntArray>) {
+        this.solution = solution
+        invalidate()
+    }
+
+    fun registerListener(listener: OnTouchListener) {
         this.listener = listener
     }
 
