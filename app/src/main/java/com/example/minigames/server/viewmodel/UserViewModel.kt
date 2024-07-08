@@ -1,4 +1,4 @@
-package com.example.minigames.server.viewmodel.userViewModel
+package com.example.minigames.server.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -6,6 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.minigames.server.model.User
 import com.example.minigames.server.network.RetrofitClient
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 
 class UserViewModel : ViewModel() {
     fun createUser(id: Int, nickname: String){
@@ -25,7 +29,7 @@ class UserViewModel : ViewModel() {
                 val users = RetrofitClient.userService.getUsers()
                 Log.d("get: ", "success ${users[0].nickname}")
             } catch(e: Exception){
-                Log.d("get", "exception");
+                Log.d("get", "exception")
             }
         }
     }
@@ -70,5 +74,35 @@ class UserViewModel : ViewModel() {
             }
         }
     }
+    fun uploadProfileImage(id: Int, uriString: String?) {
+        //val file = uriToFile(uriString)
+        val file= createMeaninglessFile()
+        viewModelScope.launch {
+            try {
+                val requestFile = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+                val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+                val success = RetrofitClient.userService.uploadProfileImage(id, body)
+                Log.d("uploadProfileImage", "success: $success")
+            } catch (e: Exception) {
+                Log.e("uploadProfileImage", "failed to upload image for user with id $id", e)
+                }
+            }
 
+    }
+    fun uriToFile(uriString: String?){
+        try{
+            val file = File("demo1.txt")
+            file.createNewFile()
+        }
+        catch(e: Exception){
+            Log.d("uriToFile","failed")
+        }
+    }
+    fun createMeaninglessFile(): File {
+        // 임시 파일을 생성하여 반환합니다.
+        val meaninglessContent = "This file contains meaningless content."
+        val file = File.createTempFile("meaningless_file", ".txt")
+        file.writeText(meaninglessContent)
+        return file
+    }
 }

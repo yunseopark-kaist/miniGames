@@ -1,25 +1,23 @@
 package com.example.minigames.ui.login
 
-import android.content.ContentValues.TAG
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
-import androidx.navigation.fragment.findNavController
 import com.example.minigames.ProfileViewModel
 import com.example.minigames.R
 import com.example.minigames.databinding.FragmentLoginBinding
-import com.example.minigames.server.viewmodel.userViewModel.UserViewModel
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.example.minigames.server.viewmodel.UserViewModel
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import java.io.File
 import java.io.IOException
+import java.net.URI
 
 
 class LoginFragment : BaseFragment<FragmentLoginBinding>() {
@@ -77,7 +75,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>() {
                 val userNickname = user.kakaoAccount?.profile?.nickname
                 val profileImageUrl = user.kakaoAccount?.profile?.profileImageUrl
                 viewModel.saveLoginInfo(token, userId, userNickname, profileImageUrl)
-                GoMain(userId, userNickname)
+                GoMain(userId, userNickname, profileImageUrl)
                 Log.d("call gomain", "userId is $userId")
             }
         }
@@ -86,8 +84,23 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>() {
     override fun getViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentLoginBinding {
         return FragmentLoginBinding.inflate(inflater, container, false)
     }
-    private val userViewModel= UserViewModel()
-    private fun GoMain(userId: Long?, userNickname: String?) {
+    private val userViewModel: UserViewModel by activityViewModels()
+
+    /*private fun uriToFile(uri: Uri, context: Context): File? {
+        try {
+            val file = File(context.cacheDir, uri.lastPathSegment ?: "temp_file")
+            val inputStream = context.contentResolver.openInputStream(uri)
+            file.outputStream().use { outputStream ->
+                inputStream?.copyTo(outputStream)
+            }
+            return file
+        } catch (e: IOException) {
+            Log.e(TAG, "Failed to convert Uri to File", e)
+            return null
+        }
+    }*/
+
+    private fun GoMain(userId: Long?, userNickname: String?,imageUrl: String?){
         // 로그인 -> 메인
         userViewModel.isThereId(userId?.toInt() ?: 0) { exists ->
             if (exists) {
@@ -99,8 +112,14 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>() {
                 Log.d("checkUserId", "User with id $userId does not exist")
                 userViewModel.createUser(userId?.toInt() ?: 0, userNickname ?: "")
                 // 여기서 UI 업데이트 등을 수행할 수 있음
+                try{
+                    userViewModel.uploadProfileImage(userId?.toInt() ?: 0, imageUrl)
+                }
+                catch (e: Exception){
+                    Log.d("uploadProfileImage","was tried")
+                }
             }
+            Navigation.findNavController(binding.root).navigate(R.id.action_login_to_home)
         }
-        Navigation.findNavController(binding.root).navigate(R.id.action_login_to_home)
     }
 }

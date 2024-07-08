@@ -1,6 +1,11 @@
 package com.example.minigames.server.network
 
 import com.example.minigames.server.model.User
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
@@ -9,6 +14,9 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 import retrofit2.http.PUT
 import retrofit2.http.DELETE
+import retrofit2.http.Multipart
+import retrofit2.http.Part
+import java.io.File
 
 interface UserService {
     @POST("users")
@@ -25,13 +33,29 @@ interface UserService {
 
     @DELETE("users")
     suspend fun removeUser(@Query("id") id: Int?=null): User
+
+    @Multipart
+    @POST("users/uploadProfileImage")
+    suspend fun uploadProfileImage(@Query("id")id: Int, @Part file: MultipartBody.Part): Boolean
 }
 
-object RetrofitClient{
+object RetrofitClient {
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://143.248.177.153:3000/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     val userService: UserService = retrofit.create(UserService::class.java)
+}
+
+object ImageUploader {
+    suspend fun uploadImage(userId: Int, imageFile: File): Boolean {
+        val requestFile = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
+        val body = MultipartBody.Part.createFormData("file", imageFile.name, requestFile)
+        return try {
+            RetrofitClient.userService.uploadProfileImage(userId, body)
+        } catch (e: Exception) {
+            false
+        }
+    }
 }

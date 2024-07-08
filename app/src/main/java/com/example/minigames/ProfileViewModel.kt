@@ -3,9 +3,7 @@ package com.example.minigames
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import com.example.minigames.server.viewmodel.userViewModel.UserViewModel
 
 data class User(val id: String, val nickname: String)
 
