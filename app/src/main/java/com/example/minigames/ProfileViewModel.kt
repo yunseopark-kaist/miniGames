@@ -3,13 +3,16 @@ package com.example.minigames
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import com.example.minigames.server.viewmodel.userViewModel.UserViewModel
 
 data class User(val id: String, val nickname: String)
 
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val prefs: SharedPreferences = application.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+    private val prefs: SharedPreferences =
+        application.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
     var accessToken: String?
         get() = prefs.getString("access_token", null)
@@ -31,11 +34,13 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         get() = prefs.getString("profile_image_url", null)
         set(value) = prefs.edit().putString("profile_image_url", value).apply()
 
+
     fun saveLoginInfo(token: String, id: Long?, name: String?, profileImageUrl: String?) {
         accessToken = token
         kakaoId = id
         nickname = name
         this.profileImageUrl = profileImageUrl
+
     }
 
     fun clearLoginInfo() {

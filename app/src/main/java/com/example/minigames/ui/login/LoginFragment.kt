@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.minigames.ProfileViewModel
 import com.example.minigames.R
 import com.example.minigames.databinding.FragmentLoginBinding
+import com.example.minigames.server.viewmodel.userViewModel.UserViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.kakao.sdk.auth.model.OAuthToken
@@ -76,7 +77,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>() {
                 val userNickname = user.kakaoAccount?.profile?.nickname
                 val profileImageUrl = user.kakaoAccount?.profile?.profileImageUrl
                 viewModel.saveLoginInfo(token, userId, userNickname, profileImageUrl)
-                GoMain()
+                GoMain(userId, userNickname)
+                Log.d("call gomain", "userId is $userId")
             }
         }
     }
@@ -84,9 +86,21 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>() {
     override fun getViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentLoginBinding {
         return FragmentLoginBinding.inflate(inflater, container, false)
     }
-
-    private fun GoMain() {
+    private val userViewModel= UserViewModel()
+    private fun GoMain(userId: Long?, userNickname: String?) {
         // 로그인 -> 메인
+        userViewModel.isThereId(userId?.toInt() ?: 0) { exists ->
+            if (exists) {
+                // ID가 존재하는 경우
+                Log.d("checkUserId", "User with id $userId exists")
+                // 여기서 UI 업데이트 등을 수행할 수 있음
+            } else {
+                // ID가 존재하지 않는 경우
+                Log.d("checkUserId", "User with id $userId does not exist")
+                userViewModel.createUser(userId?.toInt() ?: 0, userNickname ?: "")
+                // 여기서 UI 업데이트 등을 수행할 수 있음
+            }
+        }
         Navigation.findNavController(binding.root).navigate(R.id.action_login_to_home)
     }
 }
