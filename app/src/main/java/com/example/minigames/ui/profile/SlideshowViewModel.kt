@@ -1,4 +1,4 @@
-package com.example.minigames.ui.slideshow
+package com.example.minigames.ui.profile
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
