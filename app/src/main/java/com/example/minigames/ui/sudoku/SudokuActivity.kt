@@ -1,7 +1,9 @@
 package com.example.minigames.ui.sudoku
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -9,11 +11,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
 import com.example.minigames.R
 import com.example.minigames.databinding.ActivitySudokuBinding
+import java.io.File
 
 class SudokuActivity : AppCompatActivity(), SudokuBoardView.OnTouchListener {
 
     private lateinit var binding: ActivitySudokuBinding
-    private lateinit var viewModel: PlaySudokuViewModel
+    private val viewModel: SudokuViewModel by viewModels()
+    private lateinit var gameName: String
     private lateinit var numberButtons: List<Button>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +25,10 @@ class SudokuActivity : AppCompatActivity(), SudokuBoardView.OnTouchListener {
         binding = ActivitySudokuBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this).get(PlaySudokuViewModel::class.java)
+        gameName = intent.getStringExtra("GAME_NAME")?: "default_game"
+
+        // Restore game state if available
+        restoreGame()
 
         binding.sudokuBoardView.registerListener(this)
 
@@ -47,6 +54,35 @@ class SudokuActivity : AppCompatActivity(), SudokuBoardView.OnTouchListener {
 
         binding.notesButton.setOnClickListener { viewModel.sudokuGame.changeNoteTakingState() }
         binding.deleteButton.setOnClickListener { viewModel.sudokuGame.delete() }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // 게임 상태 저장
+        val solved = viewModel.sudokuGame.isSolvedLiveData.value?: false
+        val failed = viewModel.sudokuGame.isFailedLiveData.value?: false
+        if(solved||failed)
+            return
+
+        viewModel.sudokuGame.saveGameState(this, gameName)
+    }
+
+    private fun restoreGame() {
+        val savedGameState = viewModel.sudokuGame.loadGameState(this, gameName)
+
+        if (savedGameState != null) {
+            // ViewModel에 데이터 설정
+            viewModel.sudokuGame.restoreGameState(savedGameState)
+        }
+    }
+
+    private fun deleteSavedGame() {
+        val file = File(filesDir, "$gameName.json")
+        if (file.exists()) {
+            file.delete()
+            Log.d("deleteSavedGame", "deleted successfully")
+        }
+
     }
 
     private fun updateCells(cells: List<Cell>?) {
@@ -96,6 +132,7 @@ class SudokuActivity : AppCompatActivity(), SudokuBoardView.OnTouchListener {
                 )
                 .setPositiveButton("OK") { dialog, _ ->
                     dialog.dismiss()
+                    deleteSavedGame() // Delete the saved game on success
                     finish()
                 }
                 .show()
@@ -109,6 +146,7 @@ class SudokuActivity : AppCompatActivity(), SudokuBoardView.OnTouchListener {
                 .setMessage("You have made 4 incorrect attempts. Game Over.")
                 .setPositiveButton("OK") { dialog, _ ->
                     dialog.dismiss()
+                    deleteSavedGame() // Delete the saved game on failure
                     finish()
                 }
                 .show()

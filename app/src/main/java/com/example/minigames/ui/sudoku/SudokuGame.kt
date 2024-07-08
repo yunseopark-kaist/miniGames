@@ -1,8 +1,21 @@
 // SudokuGame.kt
 package com.example.minigames.ui.sudoku
 
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.google.gson.Gson
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
 import kotlin.random.Random
+
+data class SudokuGameState(
+    val solution: Array<IntArray>,
+    val cells: List<Cell>,
+    val timeTaken: Long,
+    val incorrectAttempts: Int,
+)
 
 class SudokuGame {
     var selectedCellLiveData = MutableLiveData<Pair<Int, Int>>()
@@ -22,9 +35,9 @@ class SudokuGame {
     private var score = 1000
     private var startTime = System.currentTimeMillis()
 
-    private val board: Board
-    private val cells: List<Cell>
-    private val solution: Array<IntArray>
+    private var board: Board
+    private var cells: List<Cell>
+    private var solution: Array<IntArray>
 
     init {
         val generator = SudokuGenerator()
@@ -147,5 +160,63 @@ class SudokuGame {
             timeTakenLiveData.postValue(endTime - startTime)
             isSolvedLiveData.postValue(true)
         }
+    }
+
+    private fun getGameStateFile(context: Context, gameName: String): File {
+        return File(context.filesDir, "$gameName.json")
+    }
+
+    fun saveGameState(context: Context, gameName: String) {
+        val gameState = SudokuGameState(
+            solution = solution,
+            cells = cells.map { cell ->
+                Cell(
+                    row = cell.row,
+                    col = cell.col,
+                    value = cell.value,
+                    isStartingCell = cell.isStartingCell,
+                    notes = cell.notes,
+                    isCorrect = cell.isCorrect
+                )
+            },
+            timeTaken = timeTakenLiveData.value ?: 0,
+            incorrectAttempts = incorrectAttempts,
+        )
+
+        val gson = Gson()
+        val json = gson.toJson(gameState)
+        val file = getGameStateFile(context, gameName)
+        try {
+            FileWriter(file).use { writer ->
+                writer.write(json)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    fun loadGameState(context: Context, gameName: String): SudokuGameState? {
+        val file = getGameStateFile(context, gameName)
+        if (!file.exists()) return null
+        return try {
+            val json = file.readText()
+            val gson = Gson()
+            gson.fromJson(json, SudokuGameState::class.java)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun restoreGameState(gameState: SudokuGameState) {
+        solution = gameState.solution
+        cells = gameState.cells
+        incorrectAttempts = gameState.incorrectAttempts
+        startTime = System.currentTimeMillis() - gameState.timeTaken
+
+        board = Board(9, cells)
+        cellsLiveData.postValue(board.cells)
+        incorrectAttemptsLiveData.postValue(incorrectAttempts)
+        scoreLiveData.postValue(score)
     }
 }

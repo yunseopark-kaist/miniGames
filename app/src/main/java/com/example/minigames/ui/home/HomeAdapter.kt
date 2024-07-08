@@ -3,42 +3,50 @@ package com.example.minigames.ui.home
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.example.minigames.R
+import com.example.minigames.databinding.GameListItemBinding
 
-data class GameItem (val type: String, val name: String, val playtime: Int, val progress: Int)
+data class GameItem (val type: String, val name: String, val playtime: Long, val progress: Int)
 
 class HomeAdapter(
-    private var items: List<GameItem>
-) : RecyclerView.Adapter<HomeAdapter.HomeViewHolder>() {
+    private var data: List<GameItem>,
+    private val onClick: (GameItem) -> Unit,
+    private val onLongClick: (GameItem) -> Unit
+) : RecyclerView.Adapter<HomeAdapter.GameViewHolder>() {
 
-    inner class HomeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bindItems(item: GameItem) {
-            val nameView = itemView.findViewById<TextView>(R.id.game_name)
-            val playtimeView = itemView.findViewById<TextView>(R.id.play_time)
-            val progressView = itemView.findViewById<TextView>(R.id.progress_percent)
-            nameView.text = item.name
-            playtimeView.text = item.playtime.toString()
-            progressView.text = item.progress.toString()
+    class GameViewHolder(val binding: GameListItemBinding) : RecyclerView.ViewHolder(binding.root)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = GameListItemBinding.inflate(inflater, parent, false)
+        return GameViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: GameViewHolder, position: Int) {
+        val gameItem = data[position]
+        val percentage = gameItem.progress.toString()
+        holder.binding.gameName.text = gameItem.name
+        holder.binding.playTime.text = gameItem.playtime.toString()
+        holder.binding.gameProgress.progress = gameItem.progress
+        holder.binding.progressPercent.text = "$percentage%"
+        holder.binding.root.setOnClickListener { onClick(gameItem) }
+
+        holder.binding.root.setOnLongClickListener {
+            onLongClick(gameItem)
+            true
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.game_list_item, parent, false)
-        return HomeViewHolder(v)
-    }
+    override fun getItemCount(): Int = data.size
 
-    override fun onBindViewHolder(holder: HomeViewHolder, position: Int) {
-        holder.bindItems(items[position])
-    }
-
-    override fun getItemCount(): Int {
-        return items.size
-    }
-
-    fun updateData(newItems: List<GameItem>) {
-        items = newItems
-        notifyDataSetChanged() // 어댑터 데이터 변경 알림
+    fun updateData(newData: List<GameItem>) {
+        data = newData
+        notifyDataSetChanged()
     }
 }

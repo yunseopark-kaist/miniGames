@@ -3,9 +3,11 @@ package com.example.minigames
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.Menu
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
@@ -24,6 +26,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
 import com.example.minigames.databinding.ActivityMainBinding
+import com.example.minigames.ui.home.HomeViewModel
 import com.example.minigames.ui.sudoku.SudokuActivity
 import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
@@ -34,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     val profileViewModel: ProfileViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,10 +47,8 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
-        binding.appBarMain.fab.setOnClickListener { view ->
-            val intent = Intent(this, SudokuActivity::class.java)
-            startActivity(intent)
-
+        binding.appBarMain.fab.setOnClickListener {
+            showCreateGameDialog()
         }
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
@@ -91,6 +93,30 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+    }
+
+    private fun showCreateGameDialog(){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Enter Game Name")
+
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_TEXT
+        builder.setView(input)
+
+        builder.setPositiveButton("OK") { dialog, which ->
+            val gameName = input.text.toString()
+            createNewGame(gameName)
+        }
+        builder.setNegativeButton("Cancel") { dialog, which -> dialog.cancel() }
+
+        builder.show()
+    }
+
+    private fun createNewGame(gameName: String) {
+        val intent = Intent(this, SudokuActivity::class.java)
+        intent.putExtra("GAME_NAME", gameName)
+        startActivity(intent)
+        homeViewModel.loadGameList(filesDir)
     }
 
     private fun hideUIElements() {
