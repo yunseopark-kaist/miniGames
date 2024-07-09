@@ -39,20 +39,44 @@ class SlideshowFragment : Fragment() {
             ViewModelProvider(this).get(SlideshowViewModel::class.java)
 
         _binding = FragmentSlideshowBinding.inflate(inflater, container, false)
-        val saveBtn = binding.button
+        val saveBtn = binding.buttonSave
+        val loadBtn = binding.buttonLoad
         val root: View = binding.root
 
         saveBtn.setOnClickListener {
             val userId = profileViewModel.kakaoId.toString()
-            //val directory = context?.filesDir
             Log.d("SaveBtn", "button clicked")
-            val gameName = "sudoku"
-            val gameFile = File(requireContext().filesDir, "$gameName.json")
-            if(!gameFile.exists())
-                Log.d("SaveBtn", "file doesn't exist")
-            val gameState = gameFile.readText()
-            val saveGameDto = SaveGameDto(userId, gameName, gameState)
-            gameViewModel.saveGame(saveGameDto)
+
+            val directory = File(requireContext().filesDir.toString())
+            val jsonFiles = directory.listFiles { file -> file.extension == "json" }
+
+            if (jsonFiles.isNullOrEmpty()) {
+                Log.d("SaveBtn", "No JSON files found")
+            } else {
+                for (file in jsonFiles) {
+                    val gameName = file.nameWithoutExtension
+                    val gameState = file.readText()
+                    val saveGameDto = SaveGameDto(userId, gameName, gameState)
+                    gameViewModel.saveGame(saveGameDto)
+                }
+            }
+        }
+
+        loadBtn.setOnClickListener {
+            val userId = profileViewModel.kakaoId.toString()
+            Log.d("LoadBtn", "button clicked")
+            gameViewModel.loadGames(userId)
+        }
+
+        gameViewModel.loadGameResult.observe(viewLifecycleOwner) { games ->
+            games?.let {
+                for (game in it) {
+                    val fileName = "${game.name}.json"
+                    val file = File(requireContext().filesDir, fileName)
+                    file.writeText(game.gameState)
+                }
+                Log.d("LoadBtn", "Games loaded and saved locally")
+            }
         }
 
         return root
