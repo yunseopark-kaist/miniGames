@@ -1,5 +1,6 @@
 package com.example.minigames.ui.ranking
 
+import com.example.minigames.adapter.UsersAdapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,15 +11,14 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.minigames.R
-import com.example.minigames.adapter.Score
-import com.example.minigames.adapter.ScoresAdapter
+import com.example.minigames.server.model.User
 
 class RankingFragment : Fragment() {
 
-    private val galleryViewModel: RankingViewModel by viewModels()
+    private val rankingViewModel: RankingViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
-    private lateinit var scoresAdapter: ScoresAdapter
-    private val scores = mutableListOf<Score>()
+    private lateinit var usersAdapter: UsersAdapter
+    private val users = mutableListOf<User>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,19 +27,24 @@ class RankingFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_ranking, container, false)
         recyclerView = root.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        scoresAdapter = ScoresAdapter(scores)
-        recyclerView.adapter = scoresAdapter
+        usersAdapter = UsersAdapter(users)
+        recyclerView.adapter = usersAdapter
 
         // ViewModel에서 데이터를 가져와 RecyclerView에 반영
-        galleryViewModel.scores.observe(viewLifecycleOwner, Observer { scoreList ->
-            scores.clear()
-            scores.addAll(scoreList)
-            scoresAdapter.notifyDataSetChanged()
+        rankingViewModel.users.observe(viewLifecycleOwner, Observer { userList->
+            users.clear()
+            users.addAll(userList)
+            usersAdapter.notifyDataSetChanged()
         })
 
-        // JSON 데이터 로드
-        context?.let { galleryViewModel.loadScoresFromJson(it) }
+        // 서버에서 사용자 정보 로드
+        rankingViewModel.loadUsersFromServer()
 
         return root
+    }
+    override fun onResume() {
+        super.onResume()
+        // 서버에서 사용자 정보 로드
+        rankingViewModel.loadUsersFromServer()
     }
 }
