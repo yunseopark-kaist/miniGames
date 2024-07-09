@@ -1,6 +1,5 @@
 package com.example.minigames
 
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
@@ -10,12 +9,12 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -24,25 +23,21 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
 import com.example.minigames.databinding.ActivityMainBinding
+import com.example.minigames.server.viewmodel.UserViewModel
 import com.example.minigames.ui.home.HomeViewModel
 import com.example.minigames.ui.sudoku.SudokuActivity
-import com.example.minigames.ui.sudoku.SudokuViewModel
-import com.kakao.sdk.common.util.Utility
-import com.kakao.sdk.user.UserApiClient
-import com.kakao.sdk.user.model.User
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    val profileViewModel: ProfileViewModel by viewModels()
+    private val profileViewModel: ProfileViewModel by viewModels()
     private val homeViewModel: HomeViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
     private lateinit var sudokuActivityLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_ranking, R.id.nav_slideshow
+                R.id.nav_home, R.id.nav_ranking, R.id.nav_profile, R.id.nav_friend
             ), drawerLayout
         )
 
@@ -72,8 +67,7 @@ class MainActivity : AppCompatActivity() {
 
         if (profileViewModel.isLoggedIn()) {
             // 유저가 로그인되어 있다면 메인 화면으로 이동
-            updateNavHeader(navView)
-            navController.navigate(R.id.action_login_to_home)
+            checkIdValid(navView)
         }
 
         navView.menu.findItem(R.id.nav_logout).setOnMenuItemClickListener {
@@ -106,6 +100,21 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun checkIdValid(navView: NavigationView){
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        val id = profileViewModel.kakaoId
+            userViewModel.isThereId(id?.toInt()?:0){ exists ->
+                if(exists){
+                    updateNavHeader(navView)
+                    navController.navigate(R.id.action_login_to_home)
+                } else{
+                    Toast.makeText(this@MainActivity, "비정상적인 로그인 정보입니다.", Toast.LENGTH_SHORT).show()
+                    profileViewModel.clearLoginInfo() // 유저 정보 클리어
+                    navController.navigate(R.id.action_logout)
+                }
+            }
+    }
+
     private fun showCreateGameDialog(){
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Enter Game Name")
@@ -124,6 +133,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createNewGame(gameName: String) {
+        val file = File(this.filesDir, "$gameName.json")
+        if(file.exists()){
+            Toast.makeText(this@MainActivity, "같은 이름의 게임이 진행중입니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val intent = Intent(this, SudokuActivity::class.java)
         intent.putExtra("GAME_NAME", gameName)
         sudokuActivityLauncher.launch(intent)

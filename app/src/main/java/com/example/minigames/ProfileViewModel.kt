@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
+import com.example.minigames.server.viewmodel.UserViewModel
 
 data class User(val id: String, val nickname: String)
 
@@ -11,6 +12,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     private val prefs: SharedPreferences =
         application.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+
 
     var accessToken: String?
         get() = prefs.getString("access_token", null)
@@ -48,4 +50,5 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun isLoggedIn(): Boolean {
         return accessToken != null
     }
+
 }

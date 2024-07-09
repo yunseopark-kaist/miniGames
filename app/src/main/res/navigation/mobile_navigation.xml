@@ -24,6 +24,11 @@
         android:label="Home"
         tools:layout="@layout/fragment_home" />
 
+    <fragment
+        android:id="@+id/nav_friend"
+        android:name="com.example.minigames.ui.friend.FriendManagementFragment"
+        android:label="Friend"
+        tools:layout="@layout/fragment_friend" />
 
     <fragment
         android:id="@+id/nav_ranking"
@@ -32,7 +37,7 @@
         tools:layout="@layout/fragment_ranking" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
+        android:id="@+id/nav_profile"
         android:name="com.example.minigames.ui.profile.SlideshowFragment"
         android:label="Slideshow"
         tools:layout="@layout/fragment_slideshow" />
