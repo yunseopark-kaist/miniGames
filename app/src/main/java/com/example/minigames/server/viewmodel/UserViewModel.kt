@@ -15,7 +15,7 @@ class UserViewModel : ViewModel() {
     fun createUser(id: Int, nickname: String){
         viewModelScope.launch{
             try{
-                RetrofitClient.userService.createUser(User(id, nickname,0))
+                RetrofitClient.userService.createUser(User(id, nickname,0,-1))
                 Log.d("create", "success: $id: $nickname")
             }
             catch(e: Exception){

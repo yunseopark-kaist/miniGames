@@ -65,7 +65,7 @@ class SudokuActivity : AppCompatActivity(), SudokuBoardView.OnTouchListener {
     override fun onDestroy() {
         super.onDestroy()
         // 게임 상태 저장
-        val solved = viewModel.sudokuGame.isSolvedLiveData.value?: false
+        val solved= viewModel.sudokuGame.isSolvedLiveData.value?: false
         val failed = viewModel.sudokuGame.isFailedLiveData.value?: false
         if(solved||failed)
             return
