@@ -7,18 +7,23 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
+import com.example.minigames.ProfileViewModel
 import com.example.minigames.R
 import com.example.minigames.databinding.ActivitySudokuBinding
+import com.example.minigames.server.viewmodel.UserViewModel
 import java.io.File
 
 class SudokuActivity : AppCompatActivity(), SudokuBoardView.OnTouchListener {
 
     private lateinit var binding: ActivitySudokuBinding
     private val viewModel: SudokuViewModel by viewModels()
+    private val profileViewModel: ProfileViewModel by viewModels()
     private lateinit var gameName: String
     private lateinit var numberButtons: List<Button>
+    private var userId: Long?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +32,7 @@ class SudokuActivity : AppCompatActivity(), SudokuBoardView.OnTouchListener {
 
         gameName = intent.getStringExtra("GAME_NAME")?: "default_game"
 
+        userId= profileViewModel.kakaoId
         // Restore game state if available
         restoreGame()
 
@@ -113,14 +119,21 @@ class SudokuActivity : AppCompatActivity(), SudokuBoardView.OnTouchListener {
         }
     }
 
+    private val userViewModel: UserViewModel by viewModels()
+
     private fun showClearDialog(isSolved: Boolean?) {
         if (isSolved == true) {
+
             val score = viewModel.sudokuGame.scoreLiveData.value ?: 0
             val incorrectAttempts = viewModel.sudokuGame.incorrectAttemptsLiveData.value ?: 0
             val timeTaken = viewModel.sudokuGame.timeTakenLiveData.value ?: 0
 
             val minutes = (timeTaken / 60000).toInt()
             val seconds = (timeTaken / 1000 % 60).toInt()
+
+            userId?.let{id->
+                userViewModel.userScoreUp(id.toInt(), score)
+            }
 
             AlertDialog.Builder(this)
                 .setTitle("Congratulations!")

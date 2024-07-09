@@ -108,11 +108,11 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>() {
                 // ID가 존재하는 경우
                 Log.d("checkUserId", "User with id $userId exists")
                 // 여기서 UI 업데이트 등을 수행할 수 있음
-                userViewModel.userScoreUp(id, 3);
+                //userViewModel.userScoreUp(id, 3);
             } else {
                 // ID가 존재하지 않는 경우
                 Log.d("checkUserId", "User with id $userId does not exist")
-                //userViewModel.createUser(userId?.toInt() ?: 0, userNickname ?: "")
+                userViewModel.createUser(userId?.toInt() ?: 0, userNickname ?: "")
                 // 여기서 UI 업데이트 등을 수행할 수 있음
                 try{
                     userViewModel.uploadProfileImage(userId?.toInt() ?: 0, imageUrl)
