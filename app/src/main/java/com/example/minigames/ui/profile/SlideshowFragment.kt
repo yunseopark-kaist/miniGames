@@ -6,16 +6,22 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import com.example.minigames.ProfileViewModel
+import com.example.minigames.R
 import com.example.minigames.databinding.FragmentSlideshowBinding
 import com.example.minigames.server.model.SaveGameDto
 import com.example.minigames.server.viewmodel.GameViewModel
+import com.example.minigames.server.viewmodel.UserViewModel
 import com.google.gson.Gson
 import java.io.File
 
@@ -27,6 +33,7 @@ class SlideshowFragment : Fragment() {
     // onDestroyView.
     private val gameViewModel: GameViewModel by viewModels()
     val profileViewModel: ProfileViewModel by activityViewModels()
+    val userViewModel: UserViewModel by activityViewModels()
     private val gson = Gson()
     private val binding get() = _binding!!
 
@@ -41,10 +48,20 @@ class SlideshowFragment : Fragment() {
         _binding = FragmentSlideshowBinding.inflate(inflater, container, false)
         val saveBtn = binding.buttonSave
         val loadBtn = binding.buttonLoad
+        val editBtn = binding.buttonEdit
         val root: View = binding.root
 
+        val userId = profileViewModel.kakaoId.toString()
+        val nickname = profileViewModel.nickname
+        val profileImage = profileViewModel.profileImageUrl
+
+        binding.profileId.text = userId
+        binding.profileName.text = nickname
+        Glide.with(this)
+            .load(profileImage)
+            .into(binding.profileImage)
+
         saveBtn.setOnClickListener {
-            val userId = profileViewModel.kakaoId.toString()
             Log.d("SaveBtn", "button clicked")
 
             val directory = File(requireContext().filesDir.toString())
@@ -63,9 +80,12 @@ class SlideshowFragment : Fragment() {
         }
 
         loadBtn.setOnClickListener {
-            val userId = profileViewModel.kakaoId.toString()
             Log.d("LoadBtn", "button clicked")
             gameViewModel.loadGames(userId)
+        }
+
+        editBtn.setOnClickListener {
+            showEditNicknameDialog()
         }
 
         gameViewModel.loadGameResult.observe(viewLifecycleOwner) { games ->
@@ -85,5 +105,27 @@ class SlideshowFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun showEditNicknameDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_profile, null)
+        val editTextNickname = dialogView.findViewById<EditText>(R.id.editTextNickname)
+        val buttonConfirm = dialogView.findViewById<Button>(R.id.buttonConfirm)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        buttonConfirm.setOnClickListener {
+            val newNickname = editTextNickname.text.toString()
+            if (newNickname.isNotEmpty()) {
+                userViewModel.updateUser(profileViewModel.kakaoId?.toInt()?: 0, newNickname)
+                profileViewModel.nickname = newNickname
+                binding.profileName.text = newNickname
+                dialog.dismiss()
+            }
+        }
+
+        dialog.show()
     }
 }

@@ -28,6 +28,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>() {
     }
 
     private val viewModel: ProfileViewModel by activityViewModels()
+    private val userViewModel: UserViewModel by activityViewModels()
 
     // 카카오 로그인
     val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
@@ -84,7 +85,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>() {
     override fun getViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentLoginBinding {
         return FragmentLoginBinding.inflate(inflater, container, false)
     }
-    private val userViewModel: UserViewModel by activityViewModels()
 
     /*private fun uriToFile(uri: Uri, context: Context): File? {
         try {
