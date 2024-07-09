@@ -11,6 +11,8 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
@@ -22,12 +24,15 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
 import com.example.minigames.databinding.ActivityMainBinding
 import com.example.minigames.ui.home.HomeViewModel
 import com.example.minigames.ui.sudoku.SudokuActivity
+import com.example.minigames.ui.sudoku.SudokuViewModel
 import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
 import com.kakao.sdk.user.model.User
@@ -38,13 +43,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     val profileViewModel: ProfileViewModel by viewModels()
     private val homeViewModel: HomeViewModel by viewModels()
+    private lateinit var sudokuActivityLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         setSupportActionBar(binding.appBarMain.toolbar)
 
         binding.appBarMain.fab.setOnClickListener {
@@ -83,6 +88,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        sudokuActivityLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            Log.d("mainactivity sudokuactivity ended", "update home view")
+            // 리사이클러뷰 업데이트
+            homeViewModel.loadGameList(this.filesDir)
+        }
+
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (navController.currentDestination?.id == R.id.nav_home) {
@@ -115,8 +126,7 @@ class MainActivity : AppCompatActivity() {
     private fun createNewGame(gameName: String) {
         val intent = Intent(this, SudokuActivity::class.java)
         intent.putExtra("GAME_NAME", gameName)
-        startActivity(intent)
-        homeViewModel.loadGameList(filesDir)
+        sudokuActivityLauncher.launch(intent)
     }
 
     private fun hideUIElements() {

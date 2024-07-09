@@ -5,6 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
+    <TextView
+        android:id="@+id/timeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="48sp"
+        android:layout_marginBottom="20dp"
+        android:layout_centerHorizontal="true"
+        android:text="TextView"
+        android:layout_above = "@id/sudokuBoardView" />
+
     <com.example.minigames.ui.sudoku.SudokuBoardView
         android:id="@+id/sudokuBoardView"
         android:layout_width="match_parent"

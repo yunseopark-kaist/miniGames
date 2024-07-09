@@ -1,5 +1,6 @@
 package com.example.minigames.ui.sudoku
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
+import com.example.minigames.GlobalApplication
 import com.example.minigames.R
 import com.example.minigames.databinding.ActivitySudokuBinding
 import java.io.File
@@ -56,9 +58,8 @@ class SudokuActivity : AppCompatActivity(), SudokuBoardView.OnTouchListener {
         binding.deleteButton.setOnClickListener { viewModel.sudokuGame.delete() }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        // 게임 상태 저장
+    override fun onPause(){
+        super.onPause()
         val solved = viewModel.sudokuGame.isSolvedLiveData.value?: false
         val failed = viewModel.sudokuGame.isFailedLiveData.value?: false
         if(solved||failed)
@@ -162,7 +163,11 @@ class SudokuActivity : AppCompatActivity(), SudokuBoardView.OnTouchListener {
     }
 
     private fun updateTimeTaken(timeTaken: Long?) {
-        // UI 업데이트가 필요할 경우 여기에 추가
+        timeTaken?.let {
+            val minutes = (it / 60000).toInt()
+            val seconds = (it / 1000 % 60).toInt()
+            binding.timeTextView.text = String.format("%02d:%02d", minutes, seconds)
+        }
     }
 
     override fun onCellTouched(row: Int, col: Int) {

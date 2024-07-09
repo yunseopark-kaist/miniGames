@@ -8,6 +8,8 @@ import com.google.gson.Gson
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
+import java.util.Timer
+import java.util.TimerTask
 import kotlin.random.Random
 
 data class SudokuGameState(
@@ -34,6 +36,7 @@ class SudokuGame {
     private var incorrectAttempts = 0
     private var score = 1000
     private var startTime = System.currentTimeMillis()
+    private var timer: Timer? = null
 
     private var board: Board
     private var cells: List<Cell>
@@ -56,6 +59,7 @@ class SudokuGame {
         isTakingNotesLiveData.postValue(isTakingNotes)
         incorrectAttemptsLiveData.postValue(incorrectAttempts)
         scoreLiveData.postValue(score)
+        startTimer()
     }
 
     private fun makePuzzle() {
@@ -72,6 +76,22 @@ class SudokuGame {
             board.getCell(row, col).isStartingCell = false
             board.getCell(row, col).isCorrect = false
         }
+    }
+
+    private fun startTimer() {
+        timer = Timer()
+        timer?.schedule(object : TimerTask() {
+            override fun run() {
+                val currentTime = System.currentTimeMillis()
+                val timeTaken = currentTime - startTime
+                timeTakenLiveData.postValue(timeTaken)
+            }
+        }, 0, 1000)
+    }
+
+    private fun stopTimer() {
+        timer?.cancel()
+        timer = null
     }
 
     fun handleInput(number: Int) {
@@ -156,6 +176,7 @@ class SudokuGame {
     private fun checkIfSolved() {
         val isSolved = board.cells.all { it.isStartingCell || it.isCorrect }
         if (isSolved) {
+            stopTimer()
             val endTime = System.currentTimeMillis()
             timeTakenLiveData.postValue(endTime - startTime)
             isSolvedLiveData.postValue(true)
@@ -167,6 +188,7 @@ class SudokuGame {
     }
 
     fun saveGameState(context: Context, gameName: String) {
+        stopTimer()
         val gameState = SudokuGameState(
             solution = solution,
             cells = cells.map { cell ->
@@ -189,6 +211,7 @@ class SudokuGame {
         try {
             FileWriter(file).use { writer ->
                 writer.write(json)
+                Log.d("saveGameState", "saved game state")
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -218,5 +241,7 @@ class SudokuGame {
         cellsLiveData.postValue(board.cells)
         incorrectAttemptsLiveData.postValue(incorrectAttempts)
         scoreLiveData.postValue(score)
+
+        startTimer()
     }
 }

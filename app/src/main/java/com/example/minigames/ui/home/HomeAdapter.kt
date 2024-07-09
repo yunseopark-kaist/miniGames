@@ -31,8 +31,10 @@ class HomeAdapter(
     override fun onBindViewHolder(holder: GameViewHolder, position: Int) {
         val gameItem = data[position]
         val percentage = gameItem.progress.toString()
+        val minutes = (gameItem.playtime / 60000).toInt()
+        val seconds = (gameItem.playtime / 1000 % 60).toInt()
         holder.binding.gameName.text = gameItem.name
-        holder.binding.playTime.text = gameItem.playtime.toString()
+        holder.binding.playTime.text = String.format("%02d:%02d", minutes, seconds)
         holder.binding.gameProgress.progress = gameItem.progress
         holder.binding.progressPercent.text = "$percentage%"
         holder.binding.root.setOnClickListener { onClick(gameItem) }

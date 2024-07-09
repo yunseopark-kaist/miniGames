@@ -1,8 +1,12 @@
 package com.example.minigames.ui.home
 
+import android.content.Context
+import android.content.Intent
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.minigames.ui.sudoku.SudokuActivity
 import com.example.minigames.ui.sudoku.SudokuGameState
 import com.google.gson.Gson
 import java.io.File
@@ -21,7 +25,7 @@ class HomeViewModel : ViewModel() {
             GameItem("sudoku", file.nameWithoutExtension, gameState.timeTaken, progress)
         } ?: emptyList()
 
-        _gameList.value = games
+        _gameList.postValue(games)
     }
 
     private fun calculateProgress(gameState: SudokuGameState): Int {

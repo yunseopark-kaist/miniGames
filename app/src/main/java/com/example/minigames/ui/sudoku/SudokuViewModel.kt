@@ -1,9 +1,8 @@
 package com.example.minigames.ui.sudoku
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.example.minigames.ui.sudoku.SudokuGame
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 
-class SudokuViewModel : ViewModel() {
+class SudokuViewModel(application: Application) : AndroidViewModel(application) {
     val sudokuGame = SudokuGame()
 }
