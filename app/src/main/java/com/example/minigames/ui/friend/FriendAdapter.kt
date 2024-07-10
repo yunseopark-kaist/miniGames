@@ -5,9 +5,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.minigames.databinding.ItemFriendBinding
 
-data class Friend(val nickname: String, val score: Int)
+data class Friend(val id: String, val nickname: String, val score: Int)
 
-class FriendAdapter(private val friends: List<Friend>) : RecyclerView.Adapter<FriendAdapter.FriendViewHolder>() {
+class FriendAdapter(private val friends: List<Friend>, private val onFriendClick: (Friend) -> Unit) : RecyclerView.Adapter<FriendAdapter.FriendViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
         val binding = ItemFriendBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -17,6 +17,9 @@ class FriendAdapter(private val friends: List<Friend>) : RecyclerView.Adapter<Fr
     override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
         val friend = friends[position]
         holder.bind(friend)
+        holder.itemView.setOnClickListener{
+            onFriendClick(friend)
+        }
     }
 
     override fun getItemCount(): Int = friends.size

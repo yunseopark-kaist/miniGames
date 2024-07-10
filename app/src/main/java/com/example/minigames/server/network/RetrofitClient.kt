@@ -1,5 +1,6 @@
 package com.example.minigames.server.network
 import com.example.minigames.server.model.SaveGameDto
+import com.example.minigames.server.model.SharedGameDto
 import com.example.minigames.server.model.User
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -18,6 +19,7 @@ import retrofit2.http.PUT
 import retrofit2.http.DELETE
 import retrofit2.http.Multipart
 import retrofit2.http.Part
+import retrofit2.http.Path
 import java.io.File
 
 interface UserService {
@@ -55,8 +57,16 @@ interface GameService {
     fun loadGames(@Query("userId") userId: String): Call<List<SaveGameDto>>
 }
 
+interface  SharedGameService {
+    @POST("shared-games")
+    fun shareGame(@Body sharedGameDto: SharedGameDto): Call<SharedGameDto>
+
+    @GET("shared-games/{userId}")
+    fun getSharedGames(@Path("userId") userId: String): Call<List<SharedGameDto>>
+}
+
 object RetrofitClient{
-    private const val BASE_URL = "http://143.248.177.153:3000/"
+    private const val BASE_URL = "http://172.10.7.79:80/"
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -76,6 +86,7 @@ object RetrofitClient{
 
     val userService: UserService = retrofit.create(UserService::class.java)
     val gameService: GameService = retrofit.create(GameService::class.java)
+    val sharedGameService: SharedGameService = retrofit.create(SharedGameService::class.java)
 }
 
 object ImageUploader {
