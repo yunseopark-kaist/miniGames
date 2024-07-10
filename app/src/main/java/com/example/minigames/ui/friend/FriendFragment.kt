@@ -3,6 +3,7 @@ package com.example.minigames.ui.friend
 import SharedGameViewModel
 import androidx.fragment.app.Fragment
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -125,7 +126,9 @@ class FriendFragment : Fragment() {
             return
         }
         val userId = profileViewModel.kakaoId.toString()
+        Log.d("share game", "my id: $userId")
         val shareduserId = friend.id
+        Log.d("share game", "friend id: $shareduserId")
         val gameState = sharedgame.readText()
         sharedGameViewModel.shareGame(shareduserId, userId, gameName, gameState)
     }

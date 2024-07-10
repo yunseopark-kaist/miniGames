@@ -1,3 +1,4 @@
+import android.util.Log
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -22,11 +23,13 @@ class SharedGameViewModel : ViewModel() {
                 if (response.isSuccessful) {
                 } else {
                     errorLiveData.postValue("Error: ${response.message()}")
+                    Log.d("shareGame", "error: ${response.message()}")
                 }
             }
 
             override fun onFailure(call: Call<SharedGameDto>, t: Throwable) {
                 errorLiveData.postValue("Failure: ${t.message}")
+                Log.d("shareGame", "error: ${t.message}")
             }
         })
     }
