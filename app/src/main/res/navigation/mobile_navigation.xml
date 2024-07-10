@@ -26,7 +26,7 @@
 
     <fragment
         android:id="@+id/nav_friend"
-        android:name="com.example.minigames.ui.friend.FriendManagementFragment"
+        android:name="com.example.minigames.ui.friend.FriendFragment"
         android:label="Friend"
         tools:layout="@layout/fragment_friend" />
 
