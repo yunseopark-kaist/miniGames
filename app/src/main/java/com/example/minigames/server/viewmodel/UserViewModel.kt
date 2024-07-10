@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.minigames.server.model.User
 import com.example.minigames.server.network.RetrofitClient
+import com.example.minigames.server.network.RetrofitClient.userService
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -33,6 +34,24 @@ class UserViewModel : ViewModel() {
             }
         }
     }
+
+
+
+    fun searchByNick(nickname: String){
+        viewModelScope.launch  {
+            try {
+                val users = userService.getUsersByNickname("frag")
+                // 성공적으로 사용자 리스트를 받아온 경우 처리
+                users.forEach { user ->
+                    println("User: ${user.id}, ${user.nickname}")
+                }
+            } catch (e: Exception) {
+                // 에러 처리
+                println("API 호출 중 오류 발생: ${e.message}")
+            }
+        }
+    }
+
 
 
     fun isThereId(id: Int, callback: (Boolean) -> Unit) {

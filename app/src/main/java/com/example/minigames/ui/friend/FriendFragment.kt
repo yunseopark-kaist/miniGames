@@ -3,9 +3,11 @@ package com.example.minigames.ui.friend
 import SharedGameViewModel
 import androidx.fragment.app.Fragment
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContentProviderCompat
@@ -20,6 +22,7 @@ import com.example.minigames.ui.home.GameItem
 import com.example.minigames.ui.home.HomeViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.File
+import com.example.minigames.server.viewmodel.UserViewModel
 
 class FriendFragment : Fragment() {
 
@@ -28,6 +31,7 @@ class FriendFragment : Fragment() {
     private val homeViewModel: HomeViewModel by activityViewModels()
     private val sharedGameViewModel: SharedGameViewModel by viewModels()
     private val profileViewModel: ProfileViewModel by activityViewModels()
+    private val userViewModel: UserViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,7 +53,25 @@ class FriendFragment : Fragment() {
         }
 
         binding.btnRemoveFriend.setOnClickListener {
-            // Remove Friend 버튼 클릭 시 동작
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setTitle("Enter Nickname")
+
+            val input = EditText(requireContext())
+            input.inputType = InputType.TYPE_CLASS_TEXT
+            builder.setView(input)
+
+            builder.setPositiveButton("OK") { dialog, _ ->
+                val nickname = input.text.toString().trim()
+                // 이후 닉네임을 사용하여 서버로 사용자 목록을 요청하고 처리할 예정
+                userViewModel.getUsers()
+                dialog.dismiss()
+            }
+
+            builder.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
+
+            builder.show()
         }
 
         binding.btnFriendRequests.setOnClickListener {

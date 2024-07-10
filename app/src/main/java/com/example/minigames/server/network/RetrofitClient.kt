@@ -37,6 +37,9 @@ interface UserService {
     @GET("users/exists")
     suspend fun isThereId(@Query("id") id: Int?=null): Boolean
 
+    @GET("users/searchByNickname")
+    suspend fun getUsersByNickname(@Query ("nicknameFragment") nicknameFragment: String):List<User>
+
     @PUT("users/scoreup")
     suspend fun userScoreUp(@Query("id") id: Int, @Body delta: Map<String,Int>):User
 
