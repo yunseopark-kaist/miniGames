@@ -90,7 +90,8 @@ class SlideshowFragment : Fragment() {
 
         gameViewModel.loadGameResult.observe(viewLifecycleOwner) { games ->
             games?.let {
-                for (game in it) {
+                for (game in games) {
+                    Log.d("saving loaded game", "gamename: ${game.name}")
                     val fileName = "${game.name}.json"
                     val file = File(requireContext().filesDir, fileName)
                     file.writeText(game.gameState)

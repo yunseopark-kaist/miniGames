@@ -7,7 +7,7 @@ import com.example.minigames.databinding.ItemFriendBinding
 
 data class Friend(val id: String, val nickname: String, val score: Int)
 
-class FriendAdapter(private val friends: List<Friend>, private val onFriendClick: (Friend) -> Unit) : RecyclerView.Adapter<FriendAdapter.FriendViewHolder>() {
+class FriendAdapter(private var friends: List<Friend>, private val onFriendClick: (Friend) -> Unit) : RecyclerView.Adapter<FriendAdapter.FriendViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
         val binding = ItemFriendBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -20,6 +20,11 @@ class FriendAdapter(private val friends: List<Friend>, private val onFriendClick
         holder.itemView.setOnClickListener{
             onFriendClick(friend)
         }
+    }
+
+    fun updateFriends(newFriends: List<Friend>) {
+        friends = newFriends
+        notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int = friends.size

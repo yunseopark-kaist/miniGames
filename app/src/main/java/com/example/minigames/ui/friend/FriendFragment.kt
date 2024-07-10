@@ -13,10 +13,13 @@ import androidx.core.content.ContentProviderCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.minigames.ProfileViewModel
 import com.example.minigames.databinding.FragmentFriendBinding
 import com.example.minigames.server.model.SharedGameDto
+import com.example.minigames.server.viewmodel.RelationshipViewModel
+import com.example.minigames.server.viewmodel.UserViewModel
 import com.example.minigames.ui.home.GameItem
 import com.example.minigames.ui.home.HomeViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -29,32 +32,45 @@ class FriendFragment : Fragment() {
     private val homeViewModel: HomeViewModel by activityViewModels()
     private val sharedGameViewModel: SharedGameViewModel by viewModels()
     private val profileViewModel: ProfileViewModel by activityViewModels()
+    private val userViewModel: UserViewModel by activityViewModels()
+    private lateinit var relationshipViewModel: RelationshipViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentFriendBinding.inflate(inflater, container, false)
+        relationshipViewModel = ViewModelProvider(this).get(RelationshipViewModel::class.java)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val currentUserId = profileViewModel.kakaoId?.toInt()?: 0
+        binding.tvNickname.text = profileViewModel.nickname
+        userViewModel.getUsers()
+        relationshipViewModel.fetchFriends(currentUserId)
 
-        // 예시 데이터 설정
-        binding.tvNickname.text = "MyNickname"
+        relationshipViewModel.friendsLiveData.observe(viewLifecycleOwner, Observer { fids ->
+
+        })
 
         // 버튼 클릭 리스너 설정
         binding.btnAddFriend.setOnClickListener {
-            // Add Friend 버튼 클릭 시 동작
+            val nickname = binding.searchNickname.text.toString()
+            val user = userViewModel.searchUserByNickname(nickname)
+            if (user != null) {
+                addFriend(user.id)
+            } else {
+                Toast.makeText(context, "User not found", Toast.LENGTH_SHORT).show()
+            }
         }
 
         binding.btnRemoveFriend.setOnClickListener {
-            // Remove Friend 버튼 클릭 시 동작
         }
 
         binding.btnFriendRequests.setOnClickListener {
-            // Friend Requests 버튼 클릭 시 동작
+
         }
 
         binding.btnSharedGame.setOnClickListener{
@@ -68,17 +84,38 @@ class FriendFragment : Fragment() {
             }
         })
 
-        // 리사이클러뷰 설정
         val friendList = listOf(
             Friend("1", "Friend1", 100),
             Friend("2","Friend2", 150),
-            Friend("3","Friend3", 200)
-        )
+            Friend("3","Friend3", 200))
+
         val adapter = FriendAdapter(friendList) { friend ->
             showShareGameDialog(friend)
         }
+
+
         binding.recyclerViewFriends.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewFriends.adapter = adapter
+    }
+
+    private fun addFriend(userId: Int) {
+        // 현재 사용자의 ID를 가져오는 방법은 상황에 따라 다를 수 있습니다.
+        val currentUserId = profileViewModel.kakaoId?.toInt() // 예: 하드코딩된 ID, 실제로는 로그인한 사용자의 ID를 사용해야 합니다.
+        if(currentUserId == null) return
+        Log.d("addFriend", "try to add friend $userId")
+        relationshipViewModel.createRequest(currentUserId, userId)
+    }
+
+    private fun removeFriend(friend: Friend) {
+        val userId = profileViewModel.kakaoId?.toInt()?: 0 // 실제 유저 ID로 변경
+        relationshipViewModel.removeFriend(userId, friend.id.toInt()) { success ->
+            if (success) {
+                Toast.makeText(context, "Friend removed successfully", Toast.LENGTH_SHORT).show()
+                relationshipViewModel.fetchFriends(userId)
+            } else {
+                Toast.makeText(context, "Failed to remove friend", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun showShareGameDialog(friend: Friend) {

@@ -1,6 +1,8 @@
 package com.example.minigames.server.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.minigames.server.model.User
@@ -12,6 +14,10 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
 class UserViewModel : ViewModel() {
+
+    private val _users = MutableLiveData<List<User>>()
+    val users: LiveData<List<User>> get() = _users
+
     fun createUser(id: Int, nickname: String){
         viewModelScope.launch{
             try{
@@ -27,11 +33,30 @@ class UserViewModel : ViewModel() {
         viewModelScope.launch{
             try{
                 val users = RetrofitClient.userService.getUsers()
+                _users.postValue(users)
                 Log.d("get: ", "success ${users[0].nickname}")
             } catch(e: Exception){
                 Log.d("get", "exception")
             }
         }
+    }
+
+    fun getUsers(id: Int): User?{
+        var user = emptyList<User>()
+        viewModelScope.launch{
+            try{
+                user = RetrofitClient.userService.getUsers(id)
+                Log.d("get: ", "success")
+            } catch(e: Exception){
+                Log.d("get", "exception")
+            }
+        }
+        if(!user.isEmpty()) return user[0]
+        else return null
+    }
+
+    fun searchUserByNickname(nickname: String): User?{
+        return _users.value?.find { it.nickname == nickname }
     }
 
 

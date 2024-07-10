@@ -51,6 +51,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="0dp"
+        android:id="@+id/search_nickname"
+        android:hint="Enter nickname"
+        app:layout_constraintTop_toTopOf="@id/btnAddFriend"
+        app:layout_constraintBottom_toBottomOf="@id/btnAddFriend"
+        app:layout_constraintStart_toEndOf="@id/btnRemoveFriend"
+        android:layout_marginStart="10dp"
+        />
+
     <ImageButton
         android:id="@+id/btnSharedGame"
         android:layout_width="wrap_content"
