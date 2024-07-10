@@ -104,6 +104,9 @@ class FriendFragment : Fragment() {
         if(currentUserId == null) return
         Log.d("addFriend", "try to add friend $userId")
         relationshipViewModel.createRequest(currentUserId, userId)
+        Toast.makeText(requireContext(), "친구신청을 완료했습니다.", Toast.LENGTH_SHORT).show()
+
+
     }
 
     private fun removeFriend(friend: Friend) {
@@ -168,6 +171,9 @@ class FriendFragment : Fragment() {
         Log.d("share game", "friend id: $shareduserId")
         val gameState = sharedgame.readText()
         sharedGameViewModel.shareGame(shareduserId, userId, gameName, gameState)
+        Toast.makeText(requireContext(), "${friend.nickname}님에게 게임을 공유했습니다.", Toast.LENGTH_SHORT).show()
+
+
     }
 
     fun saveGameLocally(game: SharedGameDto) {
