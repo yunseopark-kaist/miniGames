@@ -1,7 +1,9 @@
 package com.example.minigames.server.network
+import com.example.minigames.server.model.CreateRequestBody
 import com.example.minigames.server.model.SaveGameDto
 import com.example.minigames.server.model.SharedGameDto
 import com.example.minigames.server.model.User
+import com.example.minigames.server.model.Relationship
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -65,6 +67,38 @@ interface  SharedGameService {
     fun getSharedGames(@Path("userId") userId: String): Call<List<SharedGameDto>>
 }
 
+
+interface RelationshipService {
+
+    @POST("relationships")
+    fun createRequest(@Body body: CreateRequestBody): Call<Relationship>
+
+    @GET("relationships/friends/{userId}")
+    fun getFriends(@Path("userId") userId: Int): Call<List<Int>>
+
+    @GET("relationships/sent-requests/{userId}")
+    fun getSentRequests(@Path("userId") userId: Int): Call<List<Int>>
+
+    @GET("relationships/received-requests/{userId}")
+    fun getReceivedRequests(@Path("userId") userId: Int): Call<List<Int>>
+
+    @PUT("relationships/accept")
+    fun acceptRequest(@Body body: CreateRequestBody): Call<Void>
+
+    @PUT("relationships/reject")
+    fun rejectRequest(@Body body: CreateRequestBody): Call<Void>
+
+    @DELETE("relationships/remove")
+    fun removeFriend(@Body body: CreateRequestBody): Call<Void>
+
+    @GET("relationships/are-friends")
+    fun areFriends(@Query("id1") id1: Int, @Query("id2") id2: Int): Call<Boolean>
+
+    @GET("relationships/has-sent-request")
+    fun hasSentRequest(@Query("id1") id1: Int, @Query("id2") id2: Int): Call<Boolean>
+}
+
+
 object RetrofitClient{
     private const val BASE_URL = "http://172.10.7.79:80/"
 
@@ -86,6 +120,7 @@ object RetrofitClient{
 
     val userService: UserService = retrofit.create(UserService::class.java)
     val gameService: GameService = retrofit.create(GameService::class.java)
+    val relationshipService: RelationshipService = retrofit.create(RelationshipService::class.java)
     val sharedGameService: SharedGameService = retrofit.create(SharedGameService::class.java)
 }
 
