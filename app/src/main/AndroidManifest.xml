@@ -9,15 +9,29 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logiclinklogo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/logiclinklogo"
         android:supportsRtl="true"
         android:theme="@style/Theme.MiniGames"
         tools:targetApi="31">
+
+
+
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="068fc944c7ac3ec54e1bdba39e4ecf3c"/>
+
+        <activity
+            android:name=".ui.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MiniGames.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
